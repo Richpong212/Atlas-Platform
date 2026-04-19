@@ -14,10 +14,9 @@ permissions:
   contents: read
 
 env:
-  AWS_REGION: ${{ secrets.AWS_REGION }}
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPO}}
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+  ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
   SERVICE_DIR: services/atlas-api
 
 jobs:
@@ -54,41 +53,31 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
 
       - name: Log in to Amazon ECR
         id: login-ecr
-        run: |
-          aws ecr get-login-password --region "$AWS_REGION" | \
-          docker login \
-            --username AWS \
-            --password-stdin "${{ steps.account.outputs.registry }}"
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Resolve AWS account and registry
-        id: account
+      - name: Set image URI
+        id: image
         run: |
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          echo "account_id=$ACCOUNT_ID" >> "$GITHUB_OUTPUT"
-          echo "registry=${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com" >> "$GITHUB_OUTPUT"
+          echo "uri=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
       - name: Build Docker image
         working-directory: ${{ env.SERVICE_DIR }}
         run: |
-          docker build \
-            -t atlas-api:${GITHUB_SHA} \
-            .
+          docker build -t atlas-api:${GITHUB_SHA} .
 
       - name: Tag Docker image for ECR
         run: |
-          docker tag atlas-api:${GITHUB_SHA} \
-            "${{ steps.account.outputs.registry }}/${ECR_REPOSITORY}:${GITHUB_SHA}"
+          docker tag atlas-api:${GITHUB_SHA} "${{ steps.image.outputs.uri }}"
 
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@0.35.0
         with:
-          image-ref: "${{ steps.account.outputs.registry }}/${ECR_REPOSITORY}:${GITHUB_SHA}"
+          image-ref: "${{ steps.image.outputs.uri }}"
           format: "table"
           exit-code: "1"
           ignore-unfixed: true
@@ -96,9 +85,9 @@ jobs:
 
       - name: Push image to Amazon ECR
         run: |
-          docker push "${{ steps.account.outputs.registry }}/${ECR_REPOSITORY}:${GITHUB_SHA}"
+          docker push "${{ steps.image.outputs.uri }}"
 
       - name: Show pushed image
         run: |
           echo "Pushed image:"
-          echo "${{ steps.account.outputs.registry }}/${ECR_REPOSITORY}:${GITHUB_SHA}"
+          echo "${{ steps.image.outputs.uri }}"
