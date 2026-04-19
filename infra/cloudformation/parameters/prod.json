@@ -1,0 +1,43 @@
+[
+  { "ParameterKey": "EnvironmentName", "ParameterValue": "prod" },
+  {
+    "ParameterKey": "TemplateBucketName",
+    "ParameterValue": "codegenitor-cfn-templates"
+  },
+  { "ParameterKey": "TemplatePrefix", "ParameterValue": "atlas" },
+
+  { "ParameterKey": "VpcCidr", "ParameterValue": "10.2.0.0/16" },
+  { "ParameterKey": "PublicSubnetACidr", "ParameterValue": "10.2.1.0/24" },
+  { "ParameterKey": "PublicSubnetBCidr", "ParameterValue": "10.2.2.0/24" },
+  { "ParameterKey": "PrivateSubnetACidr", "ParameterValue": "10.2.11.0/24" },
+  { "ParameterKey": "PrivateSubnetBCidr", "ParameterValue": "10.2.12.0/24" },
+
+  { "ParameterKey": "ApiRepositoryName", "ParameterValue": "atlas-prod-api" },
+  {
+    "ParameterKey": "AuthRepositoryName",
+    "ParameterValue": "atlas-prod-auth-service"
+  },
+  {
+    "ParameterKey": "FrontendRepositoryName",
+    "ParameterValue": "atlas-prod-frontend"
+  },
+
+  {
+    "ParameterKey": "EKSClusterRoleName",
+    "ParameterValue": "atlas-prod-eks-cluster-role"
+  },
+  {
+    "ParameterKey": "EKSNodeRoleName",
+    "ParameterValue": "atlas-prod-eks-node-role"
+  },
+
+  { "ParameterKey": "ClusterName", "ParameterValue": "atlas-prod-eks-cluster" },
+  { "ParameterKey": "KubernetesVersion", "ParameterValue": "1.30" },
+
+  { "ParameterKey": "NodeGroupName", "ParameterValue": "atlas-prod-nodegroup" },
+  { "ParameterKey": "NodeInstanceType", "ParameterValue": "t3.large" },
+  { "ParameterKey": "NodeDesiredSize", "ParameterValue": "2" },
+  { "ParameterKey": "NodeMinSize", "ParameterValue": "2" },
+  { "ParameterKey": "NodeMaxSize", "ParameterValue": "4" },
+  { "ParameterKey": "NodeDiskSize", "ParameterValue": "30" }
+]

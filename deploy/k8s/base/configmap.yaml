@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: atlas-api-config
+  labels:
+    app.kubernetes.io/name: atlas-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: atlas-platform
+data:
+  NODE_ENV: "development"
+  PORT: "3303"

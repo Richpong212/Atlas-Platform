@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: atlas-api-config
+data:
+  NODE_ENV: "staging"
+  PORT: "3303"

@@ -1,0 +1,52 @@
+[
+  { "ParameterKey": "EnvironmentName", "ParameterValue": "staging" },
+  {
+    "ParameterKey": "TemplateBucketName",
+    "ParameterValue": "codegenitor-cfn-templates"
+  },
+  { "ParameterKey": "TemplatePrefix", "ParameterValue": "atlas" },
+
+  { "ParameterKey": "VpcCidr", "ParameterValue": "10.1.0.0/16" },
+  { "ParameterKey": "PublicSubnetACidr", "ParameterValue": "10.1.1.0/24" },
+  { "ParameterKey": "PublicSubnetBCidr", "ParameterValue": "10.1.2.0/24" },
+  { "ParameterKey": "PrivateSubnetACidr", "ParameterValue": "10.1.11.0/24" },
+  { "ParameterKey": "PrivateSubnetBCidr", "ParameterValue": "10.1.12.0/24" },
+
+  {
+    "ParameterKey": "ApiRepositoryName",
+    "ParameterValue": "atlas-staging-api"
+  },
+  {
+    "ParameterKey": "AuthRepositoryName",
+    "ParameterValue": "atlas-staging-auth-service"
+  },
+  {
+    "ParameterKey": "FrontendRepositoryName",
+    "ParameterValue": "atlas-staging-frontend"
+  },
+
+  {
+    "ParameterKey": "EKSClusterRoleName",
+    "ParameterValue": "atlas-staging-eks-cluster-role"
+  },
+  {
+    "ParameterKey": "EKSNodeRoleName",
+    "ParameterValue": "atlas-staging-eks-node-role"
+  },
+
+  {
+    "ParameterKey": "ClusterName",
+    "ParameterValue": "atlas-staging-eks-cluster"
+  },
+  { "ParameterKey": "KubernetesVersion", "ParameterValue": "1.30" },
+
+  {
+    "ParameterKey": "NodeGroupName",
+    "ParameterValue": "atlas-staging-nodegroup"
+  },
+  { "ParameterKey": "NodeInstanceType", "ParameterValue": "t3.medium" },
+  { "ParameterKey": "NodeDesiredSize", "ParameterValue": "2" },
+  { "ParameterKey": "NodeMinSize", "ParameterValue": "2" },
+  { "ParameterKey": "NodeMaxSize", "ParameterValue": "3" },
+  { "ParameterKey": "NodeDiskSize", "ParameterValue": "20" }
+]

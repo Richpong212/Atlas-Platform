@@ -1,0 +1,101 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "EKS stack for Atlas Platform"
+
+Parameters:
+  EnvironmentName:
+    Type: String
+
+  ClusterName:
+    Type: String
+
+  KubernetesVersion:
+    Type: String
+
+  EKSClusterRoleArn:
+    Type: String
+
+  EKSNodeRoleArn:
+    Type: String
+
+  PublicSubnetAId:
+    Type: AWS::EC2::Subnet::Id
+
+  PublicSubnetBId:
+    Type: AWS::EC2::Subnet::Id
+
+  PrivateSubnetAId:
+    Type: AWS::EC2::Subnet::Id
+
+  PrivateSubnetBId:
+    Type: AWS::EC2::Subnet::Id
+
+  ClusterSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+
+  NodeGroupName:
+    Type: String
+
+  NodeInstanceType:
+    Type: String
+
+  NodeDesiredSize:
+    Type: Number
+
+  NodeMinSize:
+    Type: Number
+
+  NodeMaxSize:
+    Type: Number
+
+  NodeDiskSize:
+    Type: Number
+
+Resources:
+  EKSCluster:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: !Ref ClusterName
+      Version: !Ref KubernetesVersion
+      RoleArn: !Ref EKSClusterRoleArn
+      ResourcesVpcConfig:
+        EndpointPrivateAccess: true
+        EndpointPublicAccess: true
+        SecurityGroupIds:
+          - !Ref ClusterSecurityGroupId
+        SubnetIds:
+          - !Ref PublicSubnetAId
+          - !Ref PublicSubnetBId
+          - !Ref PrivateSubnetAId
+          - !Ref PrivateSubnetBId
+      Tags:
+        - Key: Name
+          Value: !Sub atlas-${EnvironmentName}-eks-cluster
+
+  EKSNodeGroup:
+    Type: AWS::EKS::Nodegroup
+    DependsOn: EKSCluster
+    Properties:
+      ClusterName: !Ref ClusterName
+      NodegroupName: !Ref NodeGroupName
+      NodeRole: !Ref EKSNodeRoleArn
+      Subnets:
+        - !Ref PrivateSubnetAId
+        - !Ref PrivateSubnetBId
+      ScalingConfig:
+        MinSize: !Ref NodeMinSize
+        DesiredSize: !Ref NodeDesiredSize
+        MaxSize: !Ref NodeMaxSize
+      AmiType: AL2023_x86_64_STANDARD
+      CapacityType: ON_DEMAND
+      DiskSize: !Ref NodeDiskSize
+      InstanceTypes:
+        - !Ref NodeInstanceType
+      Labels:
+        workload: general
+      Tags:
+        Name: !Sub atlas-${EnvironmentName}-eks-nodegroup
+
+Outputs:
+  ClusterName:
+    Description: Name of the EKS cluster
+    Value: !Ref EKSCluster

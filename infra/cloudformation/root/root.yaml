@@ -1,0 +1,133 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Root stack for Atlas Platform"
+
+Parameters:
+  EnvironmentName:
+    Type: String
+
+  TemplateBucketName:
+    Type: String
+
+  TemplatePrefix:
+    Type: String
+
+  VpcCidr:
+    Type: String
+
+  PublicSubnetACidr:
+    Type: String
+
+  PublicSubnetBCidr:
+    Type: String
+
+  PrivateSubnetACidr:
+    Type: String
+
+  PrivateSubnetBCidr:
+    Type: String
+
+  ApiRepositoryName:
+    Type: String
+
+  AuthRepositoryName:
+    Type: String
+
+  FrontendRepositoryName:
+    Type: String
+
+  EKSClusterRoleName:
+    Type: String
+
+  EKSNodeRoleName:
+    Type: String
+
+  ClusterName:
+    Type: String
+
+  KubernetesVersion:
+    Type: String
+
+  NodeGroupName:
+    Type: String
+
+  NodeInstanceType:
+    Type: String
+
+  NodeDesiredSize:
+    Type: Number
+
+  NodeMinSize:
+    Type: Number
+
+  NodeMaxSize:
+    Type: Number
+
+  NodeDiskSize:
+    Type: Number
+
+Resources:
+  NetworkStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${TemplateBucketName}.s3.amazonaws.com/${TemplatePrefix}/network.yaml
+      Parameters:
+        EnvironmentName: !Ref EnvironmentName
+        VpcCidr: !Ref VpcCidr
+        PublicSubnetACidr: !Ref PublicSubnetACidr
+        PublicSubnetBCidr: !Ref PublicSubnetBCidr
+        PrivateSubnetACidr: !Ref PrivateSubnetACidr
+        PrivateSubnetBCidr: !Ref PrivateSubnetBCidr
+
+  SecurityStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: NetworkStack
+    Properties:
+      TemplateURL: !Sub https://${TemplateBucketName}.s3.amazonaws.com/${TemplatePrefix}/security.yaml
+      Parameters:
+        EnvironmentName: !Ref EnvironmentName
+        VpcId: !GetAtt NetworkStack.Outputs.VpcId
+
+  ECRStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${TemplateBucketName}.s3.amazonaws.com/${TemplatePrefix}/ecr.yaml
+      Parameters:
+        EnvironmentName: !Ref EnvironmentName
+        ApiRepositoryName: !Ref ApiRepositoryName
+        AuthRepositoryName: !Ref AuthRepositoryName
+        FrontendRepositoryName: !Ref FrontendRepositoryName
+
+  IAMStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${TemplateBucketName}.s3.amazonaws.com/${TemplatePrefix}/eks-iam.yaml
+      Parameters:
+        EnvironmentName: !Ref EnvironmentName
+        EKSClusterRoleName: !Ref EKSClusterRoleName
+        EKSNodeRoleName: !Ref EKSNodeRoleName
+
+  EKSStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - NetworkStack
+      - SecurityStack
+      - IAMStack
+    Properties:
+      TemplateURL: !Sub https://${TemplateBucketName}.s3.amazonaws.com/${TemplatePrefix}/eks.yaml
+      Parameters:
+        EnvironmentName: !Ref EnvironmentName
+        ClusterName: !Ref ClusterName
+        KubernetesVersion: !Ref KubernetesVersion
+        EKSClusterRoleArn: !GetAtt IAMStack.Outputs.EKSClusterRoleArn
+        EKSNodeRoleArn: !GetAtt IAMStack.Outputs.EKSNodeRoleArn
+        PublicSubnetAId: !GetAtt NetworkStack.Outputs.PublicSubnetAId
+        PublicSubnetBId: !GetAtt NetworkStack.Outputs.PublicSubnetBId
+        PrivateSubnetAId: !GetAtt NetworkStack.Outputs.PrivateSubnetAId
+        PrivateSubnetBId: !GetAtt NetworkStack.Outputs.PrivateSubnetBId
+        ClusterSecurityGroupId: !GetAtt SecurityStack.Outputs.ClusterSecurityGroupId
+        NodeGroupName: !Ref NodeGroupName
+        NodeInstanceType: !Ref NodeInstanceType
+        NodeDesiredSize: !Ref NodeDesiredSize
+        NodeMinSize: !Ref NodeMinSize
+        NodeMaxSize: !Ref NodeMaxSize
+        NodeDiskSize: !Ref NodeDiskSize

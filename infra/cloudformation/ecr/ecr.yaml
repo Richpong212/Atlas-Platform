@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "ECR repositories for Atlas Platform"
+
+Parameters:
+  EnvironmentName:
+    Type: String
+
+  ApiRepositoryName:
+    Type: String
+
+  AuthRepositoryName:
+    Type: String
+
+  FrontendRepositoryName:
+    Type: String
+
+Resources:
+  ApiRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref ApiRepositoryName
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      ImageTagMutability: IMMUTABLE
+      Tags:
+        - Key: Name
+          Value: !Sub atlas-${EnvironmentName}-api-repo
+
+  AuthRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref AuthRepositoryName
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      ImageTagMutability: IMMUTABLE
+      Tags:
+        - Key: Name
+          Value: !Sub atlas-${EnvironmentName}-auth-repo
+
+  FrontendRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref FrontendRepositoryName
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      ImageTagMutability: IMMUTABLE
+      Tags:
+        - Key: Name
+          Value: !Sub atlas-${EnvironmentName}-frontend-repo
+
+Outputs:
+  ApiRepositoryUri:
+    Description: API repository URI
+    Value: !GetAtt ApiRepository.RepositoryUri
+
+  AuthRepositoryUri:
+    Description: Auth repository URI
+    Value: !GetAtt AuthRepository.RepositoryUri
+
+  FrontendRepositoryUri:
+    Description: Frontend repository URI
+    Value: !GetAtt FrontendRepository.RepositoryUri

@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atlas-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: atlas-api
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: atlas-api
+        app.kubernetes.io/component: api
+        app.kubernetes.io/part-of: atlas-platform
+    spec:
+      containers:
+        - name: atlas-api
+          image: 307946673392.dkr.ecr.us-east-1.amazonaws.com/atlas-dev-api:prod
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"

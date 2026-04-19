@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Security stack for Atlas Platform"
+
+Parameters:
+  EnvironmentName:
+    Type: String
+
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+
+Resources:
+  ClusterSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for EKS control plane
+      VpcId: !Ref VpcId
+      Tags:
+        - Key: Name
+          Value: !Sub atlas-${EnvironmentName}-eks-cluster-sg
+
+  NodeSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for EKS worker nodes
+      VpcId: !Ref VpcId
+      Tags:
+        - Key: Name
+          Value: !Sub atlas-${EnvironmentName}-eks-node-sg
+
+  ClusterToNodeIngress443:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref NodeSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: !Ref ClusterSecurityGroup
+
+  NodeToClusterIngress443:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref ClusterSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: !Ref NodeSecurityGroup
+
+  NodeToNodeAllTraffic:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref NodeSecurityGroup
+      IpProtocol: "-1"
+      SourceSecurityGroupId: !Ref NodeSecurityGroup
+
+Outputs:
+  ClusterSecurityGroupId:
+    Description: EKS cluster security group ID
+    Value: !Ref ClusterSecurityGroup
+
+  NodeSecurityGroupId:
+    Description: EKS node security group ID
+    Value: !Ref NodeSecurityGroup
