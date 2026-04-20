@@ -12,7 +12,7 @@ patches:
 images:
   - name: 307946673392.dkr.ecr.us-east-1.amazonaws.com/atlas-dev-api
     newName: 307946673392.dkr.ecr.us-east-1.amazonaws.com/atlas-dev-api
-    newTag: v1
+    newTag: 9d3122fa896ef9c522d9f7d75cfc7afa07dc78a3
 
 replicas:
   - name: atlas-api
