@@ -6,11 +6,12 @@ on:
       - main
     paths:
       - "services/atlas-api/**"
+      - "deploy/k8s/overlays/dev/**"
       - ".github/workflows/api-build.yml"
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -20,12 +21,15 @@ env:
   SERVICE_DIR: services/atlas-api
 
 jobs:
-  build-test-scan-push:
+  build-test-scan-push-update-dev:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -92,7 +96,21 @@ jobs:
         run: |
           docker push "${{ steps.image.outputs.uri }}"
 
-      - name: Show pushed image
+      - name: Update dev overlay image tag
         run: |
-          echo "Pushed image:"
-          echo "${{ steps.image.outputs.uri }}"
+          sed -i "s/newTag: .*/newTag: ${GITHUB_SHA}/" deploy/k8s/overlays/dev/kustomization.yaml
+
+      - name: Commit and push updated dev overlay
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add deploy/k8s/overlays/dev/kustomization.yaml
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "chore: update dev image tag to ${GITHUB_SHA}"
+          git push

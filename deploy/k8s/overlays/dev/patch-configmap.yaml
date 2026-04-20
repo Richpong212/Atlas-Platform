@@ -3,5 +3,6 @@ kind: ConfigMap
 metadata:
   name: atlas-api-config
 data:
-  NODE_ENV: "production"
+  NODE_ENV: "development"
+  APP_VERSION: "v1"
   PORT: "3303"

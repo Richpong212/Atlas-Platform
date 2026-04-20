@@ -5,8 +5,15 @@ namespace: atlas-staging
 
 resources:
   - ../../base
-  - namespace.yaml
 
-patchesStrategicMerge:
-  - configmap-patch.yaml
-  - deployment-patch.yaml
+patches:
+  - path: patch-configmap.yaml
+
+images:
+  - name: 307946673392.dkr.ecr.us-east-1.amazonaws.com/atlas-dev-api
+    newName: 307946673392.dkr.ecr.us-east-1.amazonaws.com/atlas-dev-api
+    newTag: v1
+
+replicas:
+  - name: atlas-api
+    count: 2

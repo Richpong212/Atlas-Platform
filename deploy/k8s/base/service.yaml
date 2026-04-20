@@ -4,15 +4,12 @@ metadata:
   name: atlas-api
   labels:
     app.kubernetes.io/name: atlas-api
-    app.kubernetes.io/component: api
     app.kubernetes.io/part-of: atlas-platform
 spec:
-  type: ClusterIP
   selector:
     app.kubernetes.io/name: atlas-api
-    app.kubernetes.io/component: api
   ports:
     - name: http
       port: 80
-      targetPort: http
-      protocol: TCP
+      targetPort: 3303
+  type: ClusterIP

@@ -4,69 +4,39 @@ metadata:
   name: atlas-api
   labels:
     app.kubernetes.io/name: atlas-api
-    app.kubernetes.io/component: api
     app.kubernetes.io/part-of: atlas-platform
 spec:
-  replicas: 2
-  revisionHistoryLimit: 5
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: atlas-api
-      app.kubernetes.io/component: api
   template:
     metadata:
       labels:
         app.kubernetes.io/name: atlas-api
-        app.kubernetes.io/component: api
         app.kubernetes.io/part-of: atlas-platform
     spec:
-      securityContext:
-        runAsNonRoot: true
-        fsGroup: 1001
       containers:
         - name: atlas-api
-          image: 307946673392.dkr.ecr.us-east-1.amazonaws.com/atlas-dev-api:latest
+          image: 307946673392.dkr.ecr.us-east-1.amazonaws.com/atlas-dev-api:v1
           imagePullPolicy: IfNotPresent
           ports:
-            - name: http
-              containerPort: 3303
-              protocol: TCP
+            - containerPort: 3303
           envFrom:
             - configMapRef:
                 name: atlas-api-config
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
-            capabilities:
-              drop:
-                - ALL
           readinessProbe:
             httpGet:
               path: /health
-              port: http
+              port: 3303
             initialDelaySeconds: 5
             periodSeconds: 10
-            timeoutSeconds: 2
-            successThreshold: 1
-            failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /health
-              port: http
-            initialDelaySeconds: 15
-            periodSeconds: 20
-            timeoutSeconds: 2
-            successThreshold: 1
-            failureThreshold: 3
-          startupProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 5
-            periodSeconds: 5
-            timeoutSeconds: 2
-            successThreshold: 1
-            failureThreshold: 12
+              port: 3303
+            initialDelaySeconds: 10
+            periodSeconds: 15
           resources:
             requests:
               cpu: "100m"

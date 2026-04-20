@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: atlas
+  namespace: argocd
+spec:
+  description: Atlas Platform project
+
+  sourceRepos:
+    - "https://github.com/Richpong212/Atlas-Platform.git"
+
+  destinations:
+    - namespace: atlas-dev
+      server: https://kubernetes.default.svc
+    - namespace: atlas-staging
+      server: https://kubernetes.default.svc
+    - namespace: atlas-prod
+      server: https://kubernetes.default.svc
+
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

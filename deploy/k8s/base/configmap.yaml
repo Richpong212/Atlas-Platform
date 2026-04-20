@@ -4,8 +4,8 @@ metadata:
   name: atlas-api-config
   labels:
     app.kubernetes.io/name: atlas-api
-    app.kubernetes.io/component: api
     app.kubernetes.io/part-of: atlas-platform
 data:
   NODE_ENV: "development"
+  APP_VERSION: "v1"
   PORT: "3303"
