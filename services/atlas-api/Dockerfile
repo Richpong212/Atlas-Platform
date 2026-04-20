@@ -12,24 +12,18 @@ COPY tsconfig.json ./
 COPY src ./src
 RUN npm run build
 
-FROM node:22-alpine AS runtime
+FROM node:22-alpine AS prod-deps
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+
+FROM gcr.io/distroless/nodejs22-debian12:nonroot AS runtime
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-RUN addgroup -S nodejs && adduser -S atlas -G nodejs
-
-COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
-
+COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
-
-# Patch npm's bundled vulnerable picomatch
-RUN npm install -g npm@11.12.1 --prefix /usr/local \
-    && npm install --prefix /usr/local/lib/node_modules/npm picomatch@4.0.4 --save-exact \
-    && node -p "require('/usr/local/lib/node_modules/npm/node_modules/picomatch/package.json').version"
-
-USER atlas
 
 EXPOSE 3303
 
@@ -39,4 +33,4 @@ LABEL org.opencontainers.image.title="atlas-api" \
       org.opencontainers.image.source="https://github.com/your-org/atlas-platform" \
       org.opencontainers.image.licenses="ISC"
 
-CMD ["node", "dist/index.js"]
+CMD ["dist/index.js"]
