@@ -17,7 +17,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
-FROM gcr.io/distroless/nodejs22-debian12:nonroot AS runtime
+FROM gcr.io/distroless/nodejs22-debian13:nonroot AS runtime
 WORKDIR /app
 
 ENV NODE_ENV=production
