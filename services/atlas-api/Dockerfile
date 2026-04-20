@@ -24,6 +24,11 @@ RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=build /app/dist ./dist
 
+# Patch npm's bundled vulnerable picomatch
+RUN npm install -g npm@11.12.1 --prefix /usr/local \
+    && npm install --prefix /usr/local/lib/node_modules/npm picomatch@4.0.4 --save-exact \
+    && node -p "require('/usr/local/lib/node_modules/npm/node_modules/picomatch/package.json').version"
+
 USER atlas
 
 EXPOSE 3303
