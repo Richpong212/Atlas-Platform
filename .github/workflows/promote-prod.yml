@@ -1,0 +1,39 @@
+name: Promote API to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag to promote to production"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  promote-prod:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update prod image tag
+        run: |
+          sed -i "s/newTag: .*/newTag: ${{ github.event.inputs.image_tag }}/" deploy/k8s/overlays/prod/kustomization.yaml
+
+      - name: Show updated prod overlay
+        run: |
+          cat deploy/k8s/overlays/prod/kustomization.yaml
+
+      - name: Commit and push prod promotion
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add deploy/k8s/overlays/prod/kustomization.yaml
+          git commit -m "chore: promote prod to ${{ github.event.inputs.image_tag }}"
+          git push

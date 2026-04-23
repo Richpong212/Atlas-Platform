@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-service-config
+  namespace: atlas-dev
+  labels:
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/part-of: atlas-platform
+data:
+  NODE_ENV: "development"
+  PORT: "3304"

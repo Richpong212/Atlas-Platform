@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Atlas Platform Frontend</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 2rem;
+        background: #0f172a;
+        color: #f8fafc;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin-bottom: 0.5rem;
+      }
+
+      p {
+        color: #cbd5e1;
+      }
+
+      .card {
+        background: #1e293b;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+      }
+
+      button {
+        background: #2563eb;
+        color: white;
+        border: none;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+
+      button:hover {
+        background: #1d4ed8;
+      }
+
+      pre {
+        background: #020617;
+        color: #e2e8f0;
+        padding: 1rem;
+        border-radius: 8px;
+        overflow: auto;
+        margin-top: 1rem;
+      }
+
+      .status {
+        margin-top: 1rem;
+        font-weight: bold;
+      }
+
+      .ok {
+        color: #22c55e;
+      }
+
+      .fail {
+        color: #ef4444;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Atlas Platform</h1>
+      <p>Frontend → API → Auth Service</p>
+
+      <div class="card">
+        <button id="checkBtn">Run End-to-End Check</button>
+        <div id="status" class="status"></div>
+        <pre id="output">No request made yet.</pre>
+      </div>
+    </div>
+
+    <script>
+      const button = document.getElementById("checkBtn");
+      const output = document.getElementById("output");
+      const status = document.getElementById("status");
+
+      button.addEventListener("click", async () => {
+        status.textContent = "Checking platform...";
+        status.className = "status";
+        output.textContent = "Loading...";
+
+        try {
+          const response = await fetch("/api/auth-check");
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(JSON.stringify(data));
+          }
+
+          status.textContent = "Platform flow is working";
+          status.className = "status ok";
+          output.textContent = JSON.stringify(data, null, 2);
+        } catch (error) {
+          status.textContent = "Platform flow failed";
+          status.className = "status fail";
+          output.textContent = String(error);
+        }
+      });
+    </script>
+  </body>
+</html>

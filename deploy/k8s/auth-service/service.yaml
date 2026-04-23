@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: atlas-auth-service
+  namespace: atlas-dev
+  labels:
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/part-of: atlas-platform
+spec:
+  selector:
+    app.kubernetes.io/name: auth-service
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3304
+  type: ClusterIP

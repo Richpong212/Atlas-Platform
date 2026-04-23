@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atlas-auth-service
+  namespace: atlas-dev
+  labels:
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/part-of: atlas-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: auth-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: auth-service
+        app.kubernetes.io/part-of: atlas-platform
+    spec:
+      containers:
+        - name: auth-service
+          image: 307946673392.dkr.ecr.us-east-1.amazonaws.com/atlas-dev-auth-service:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3304
+          envFrom:
+            - configMapRef:
+                name: auth-service-config
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3304
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3304
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

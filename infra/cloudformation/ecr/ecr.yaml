@@ -19,6 +19,7 @@ Resources:
     Type: AWS::ECR::Repository
     Properties:
       RepositoryName: !Ref ApiRepositoryName
+      EmptyOnDelete: true
       ImageScanningConfiguration:
         ScanOnPush: true
       ImageTagMutability: IMMUTABLE
@@ -32,6 +33,7 @@ Resources:
       RepositoryName: !Ref AuthRepositoryName
       ImageScanningConfiguration:
         ScanOnPush: true
+      EmptyOnDelete: true
       ImageTagMutability: IMMUTABLE
       Tags:
         - Key: Name

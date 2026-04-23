@@ -1,0 +1,39 @@
+name: Promote API to Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag to promote to staging"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  promote-staging:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Update staging image tag
+        run: |
+          sed -i "s/newTag: .*/newTag: ${{ github.event.inputs.image_tag }}/" deploy/k8s/overlays/staging/kustomization.yaml
+
+      - name: Show updated staging overlay
+        run: |
+          cat deploy/k8s/overlays/staging/kustomization.yaml
+
+      - name: Commit and push staging promotion
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add deploy/k8s/overlays/staging/kustomization.yaml
+          git commit -m "chore: promote staging to ${{ github.event.inputs.image_tag }}"
+          git push

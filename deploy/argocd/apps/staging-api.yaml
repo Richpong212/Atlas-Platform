@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: atlas-staging-api
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: atlas
+
+  source:
+    repoURL: "https://github.com/Richpong212/Atlas-Platform.git"
+    targetRevision: main
+    path: deploy/k8s/overlays/staging
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: atlas-staging
+
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=false
