@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: atlas-frontend-ingress
+  namespace: atlas-dev
+  labels:
+    app.kubernetes.io/name: atlas-frontend
+    app.kubernetes.io/part-of: atlas-platform
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: atlas-dev.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: atlas-frontend
+                port:
+                  number: 80
